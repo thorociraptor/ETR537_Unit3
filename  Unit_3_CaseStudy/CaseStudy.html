@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Rachel Martiniak">
+
+<title>Week 10: Predicting Student Achievement</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="CaseStudy_files/libs/clipboard/clipboard.min.js"></script>
+<script src="CaseStudy_files/libs/quarto-html/quarto.js"></script>
+<script src="CaseStudy_files/libs/quarto-html/popper.min.js"></script>
+<script src="CaseStudy_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="CaseStudy_files/libs/quarto-html/anchor.min.js"></script>
+<link href="CaseStudy_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="CaseStudy_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="CaseStudy_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="CaseStudy_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="CaseStudy_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Week 10: Predicting Student Achievement</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Rachel Martiniak </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="prepare" class="level1">
+<h1>1. Prepare</h1>
+<p>During the final week of each unit, we will complete a “case-study” to illustrate how Learning Analytics methods and techniques can be applied to address research questions of interest, create useful data products, and conduct reproducible research. Each case study is structured around a basic research workflow modeled after the Data Intensive Research Workflow from Learning Analytics Goes to School (Krumm, 2018).</p>
+<p>Figure 1.</p>
+<p>Steps of Data Intensive Research Workflow</p>
+<p><img src="Img/research-workflow.png" class="img-fluid" width="573"></p>
+<p>For Unit 1, we will focus on online science classes provided through a state-wide online virtual school and conduct an analysis that help predict students’ performance in these online courses. This case study is guided by a foundational study in Learning Analytics that illustrates how analyses like these can be used develop an early warning system to help educators to identify students at risk of failing and intervene before that happens.</p>
+<p>The Unit 1 case study will cover the following workflow topics.</p>
+<ol type="1">
+<li><strong>Prepare:</strong> Prior to analysis, it’s critical to understand the context and data sources you’re working with so you can formulate useful and answerable questions. You’ll also need to become familiar with and load essential packages for analysis.</li>
+<li><strong>Wrangle:</strong> Wrangling data entails the work of manipulating, cleaning, transforming, and merging data. In the part 2, we focus on importing CSV files, tidying and joining our data. For this assignment, we will only complete the half of the tidying process.</li>
+<li><strong>Explore:</strong> In Part 3, we use basic data visualization and calculate some summary statistics to explore our data and see what insight it provides in response to our question.</li>
+<li><strong>Model:</strong> After identifying variable that may be related to student performance through exploratory analysis, we’ll look at correlations and create some simple models of our data using linear regression.</li>
+<li><strong>Communicate:</strong> To wrap up our case study, we’ll develop our first “data product” and share our analyses and findings by creating our first web page using R pubs.</li>
+</ol>
+<section id="a.-review-the-literature" class="level2">
+<h2 class="anchored" data-anchor-id="a.-review-the-literature">1a. Review the Literature</h2>
+<p>Our Unit 1 Case Study is guided by a well-cited publication from two authors that have made numerous contributions to the field of Learning Analytics over the years. Although this article is focused on “early warning systems” in higher education, and where adoption of learning management systems (LMS) like Moodle and Canvas gained a quicker foothold, this study is particularly relevant since COVID-19. Many districts across the county have incorporated a LMS into their remote instruction and have set up virtual academies likely to continue post-pandemic.</p>
+<p><strong>Note:</strong> You have the following reading in your literature file. Check the full-text from there.</p>
+<p>Macfadyen, L. P., &amp; Dawson, S. (2010). <a href="https://www.sciencedirect.com/science/article/pii/S0360131509002486?via%3Dihub">Mining LMS data to develop an “early warning system” for educators: A proof of concept.</a> <em>Computers &amp; education</em>,&nbsp;<em>54</em>(2), 588-599</p>
+<section id="abstract" class="level3">
+<h3 class="anchored" data-anchor-id="abstract">Abstract</h3>
+<p>Earlier studies have suggested that higher education institutions could harness the predictive power of Learning Management System (LMS) data to develop reporting tools that identify at-risk students and allow for more timely pedagogical interventions. This paper confirms and extends this proposition by providing data from an international research project investigating <strong>which student online activities accurately predict academic achievement.</strong> Analysis of LMS tracking data from a Blackboard Vista-supported course identified 15 variables demonstrating a significant simple correlation with student final grade… Moreover, <strong>network analysis of course discussion forums</strong> afforded insight into the development of the student learning community by identifying disconnected students, patterns of student-to-student communication, and instructor positioning within the network. This study affirms that pedagogically meaningful information can be extracted from LMS-generated student tracking data, and discusses how these findings are informing the <strong>development of a dashboard-like reporting tool for educators</strong> that will extract and visualize real-time data on student engagement and likelihood of success.</p>
+</section>
+<section id="data-sources-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="data-sources-analysis"><strong>Data Sources &amp; Analysis</strong></h3>
+<p>The data analyzed in this exploratory research was extracted from the course-based instructor tracking logs and the BB VistaTM production server. Data collected on each student included ‘whole term’ counts for frequency of usage of course materials and tools supporting content delivery, engagement and discussion, assessment and administration/management. In addition, tracking data indicating total time spent on certain tool-based activities (assessments, assignments, total time online) offered a total measure of individual student time on task.</p>
+<p>The authors used scatter plots for identifying potential correlational trends between variables under investigation, followed by a a simple correlation analysis of each variable to further interrogate the significance of selected variables as indicators of student achievement. Finally, a linear multiple regression analysis was therefore conducted, in order to develop a predictive model in which ‘Student final grade’ was the continuous dependent variable.</p>
+</section>
+</section>
+<section id="b.-define-questions" class="level2">
+<h2 class="anchored" data-anchor-id="b.-define-questions">1b. Define Questions</h2>
+<p>In this study, exploratory research was undertaken to identify the data variables that would inform the development of a data visualization tool for instructors. This involved the extraction of all LMS tracking variables for selected course sections at The University of British Columbia, Canada. In so doing, the study aimed to address the following research questions:</p>
+<ol type="1">
+<li><p>Which LMS tracking data variables correlate significantly with student achievement?</p></li>
+<li><p>How accurately can measures of student online activity in an online course site predict student achievement in the course under study?</p></li>
+<li><p>Can tracking data recording online student communication patterns offer pedagogically meaningful insights into development of a student learning community?</p></li>
+</ol>
+<p>For our case study, we’ll adopt questions 1 &amp; 2 wholesale to guide our exploratory analysis and modeling, with a special emphasis on time spent in the LMS. We’ll also use analytical approaches and data similar to those used by @macfadyen2010mining to better understand how LMS, gradebook, and survey data might be predictive of student performance.</p>
+</section>
+<section id="c.-load-libraries" class="level2">
+<h2 class="anchored" data-anchor-id="c.-load-libraries">1c. Load Libraries</h2>
+<p>As noted in our earlier class, R uses “packages” and add-ons that enhance its functionality. One of our first steps in any workflow is to load packages necessary for data wrangling, analysis, and reporting. We’ll load the familiar {tidyverse} package in this section and introduce new packages and corresponding functions throughout the case study.</p>
+<p><img src="Img/tidyverse.png" class="img-fluid" width="354"></p>
+<p>Recall from earlier class that the {tidyverse} package is actually a <a href="https://www.tidyverse.org/packages">collection of R packages</a> designed for reading, wrangling, and exploring data and which all share an underlying design philosophy, grammar, and data structures. These shared features are sometimes “tidy data principles.”</p>
+<p>Click the green arrow in the right corner of the “code chunk” that follows to load the {tidyverse} library introduced.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.3     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.0
+✔ ggplot2   3.4.3     ✔ tibble    3.2.1
+✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+</div>
+<p>Don’t worry if you saw a number of messages: those probably mean that the tidyverse loaded just fine. Any conflicts you may have seen mean that functions in these packages you loaded have the same name as functions in other packages and R will default to function from the last loaded package unless you specify otherwise.</p>
+</section>
+</section>
+<section id="wrangle" class="level1">
+<h1>2. Wrangle</h1>
+<p>In general, data wrangling involves some combination of cleaning, reshaping, transforming, and merging data <span class="citation" data-cites="wickham2023r">[@wickham2023r]</span>. The importance of data wrangling is difficult to overstate, as it involves the initial steps of going from raw data to a dataset that can be explored and modeled <span class="citation" data-cites="krumm2018">[@krumm2018]</span> and often comprises a large share of time spent on data-intensive research workflows. In Part 2, we focus on the the following workflow processes:</p>
+<ol type="a">
+<li><p><strong>Import Data</strong>. In this section, we introduce the <code>read_csv()</code> function for working with CSV files and revisit some key functions for inspecting our data.</p></li>
+<li><p><strong>Tidy Data</strong>. We introduce the <code>separate()</code> and <code>clean_names()</code> functions for getting our data nice and tidy, and revisit the <code>mutate()</code> function for creating new variables and feature engineering.</p></li>
+<li><p><strong>Join Data</strong>. We conclude our data wrangling by introducing <code>join()</code> functions for merging our processed files into a single data frame for analysis.</p></li>
+</ol>
+<section id="a.-import-data" class="level3">
+<h3 class="anchored" data-anchor-id="a.-import-data">2a. Import Data</h3>
+<p>Education data are stored in all sorts of different file formats and structures. In this course, we’ll discuss several of these common formats, how to import your data into R, and how to transform you data into other data structures such as network objects required for social network analysis in Unit 3. In this case study, we’ll focus on working with <strong>comma-separated values (CSV)</strong> files.</p>
+<p>Similar to spreadsheet formats like Excel and Google Sheets, CSVs allow us to store rectangular data frames, but in a much simpler plain-text format, where all the important information in the file is represented by text. Note that “text” here refers to numbers, letters, and symbols you can type on your keyboard. In <a href="Tidyverse%20Skills%20for%20Data%20Science">Tidyverse Skills for Data Science</a>, Wright et al. <span class="citation" data-cites="wright2021tidyverse">@wright2021tidyverse</span> note that the advantage of a .csv files is that:</p>
+<blockquote class="blockquote">
+<p>… there are no workbooks or metadata making it difficult to open these files. CSVs are flexible files and are thus the preferred storage method for tabular data for many data scientists.</p>
+</blockquote>
+<section id="data-source-1-log-data" class="level4">
+<h4 class="anchored" data-anchor-id="data-source-1-log-data">Data Source #1: Log Data</h4>
+<p><em>Log-trace data</em> is data generated from our interactions with digital technologies, such as archived data from social media postings. In education, an increasingly common source of log-trace data is that generated from interactions with LMS and other digital learning tools.</p>
+<p>The data we will use in this case study and already been “wrangled” quite a bit and is a summary of log-trace data: the number of minutes students spent on the course. While this data type is fairly straightforward, there are even more complex sources of log-trace data out there (e.g., time stamps associated with when students started and stopped accessing the course).</p>
+<p>To help us import our data, we’ll be using the {<a href="https://readr.tidyverse.org">readr</a>} package, which provides a “fast and friendly way” to read rectangular data stored in plain-text file formats like csv, tsv, and fwf. If you are new to {readr}, I highly recommend the <a href="https://r4ds.had.co.nz/data-import.html">data import chapter</a>&nbsp;in R for Data Science <span class="citation" data-cites="wickham2023r">[@wickham2023r]</span>. Note that we don’t need to load the {readr} package because it was already loaded as part of the tidyverse package we called earlier.</p>
+<p>Let’s use the <code>read_csv()</code> function from {readr} to import our <code>log-data.csv</code> file directly from our data folder and name this data set <code>time_spent</code>, which will now be saved in our R environment:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>time_spent <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/log-data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 716 Columns: 6
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (4): course_id, gender, enrollment_reason, enrollment_status
+dbl (2): student_id, time_spent
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</section>
+<section id="data-source-2-academic-achievement-data" class="level4">
+<h4 class="anchored" data-anchor-id="data-source-2-academic-achievement-data">Data Source #2: Academic Achievement Data</h4>
+<p>Academic achievement data is (obviously) is a very common form of data in education. In this case study, we’ll use both the sum of the points students earned as well as the number of points possible to compute the percentage of points they earned in the course—a measure comparable (but likely a little different based on teachers’ grading policies) to their final grade.</p>
+<p>In the code chunk below, read in to R the <code>gradebook-summary.csv</code> file located in the data folder. You can use the code above as a template. Assign the output from the <code>read_csv()</code> function to a new object named gradebook.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># YOUR CODE HERE</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>gradebook <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/gradebook-summary.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 717 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (1): course_id
+dbl (3): student_id, total_points_possible, total_points_earned
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>gradebook</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 717 × 4
+   student_id course_id     total_points_possible total_points_earned
+        &lt;dbl&gt; &lt;chr&gt;                         &lt;dbl&gt;               &lt;dbl&gt;
+ 1      43146 FrScA-S216-02                  1217               1150 
+ 2      44638 OcnA-S116-01                   1676               1384.
+ 3      47448 FrScA-S216-01                  1232               1116 
+ 4      47979 OcnA-S216-01                   1833               1493.
+ 5      48797 PhysA-S116-01                  2225               1995.
+ 6      51943 FrScA-S216-03                  1222                 70 
+ 7      52326 AnPhA-S216-01                  1775               1519.
+ 8      52446 PhysA-S116-01                  2225               2198 
+ 9      53447 FrScA-S116-01                  1212               1173 
+10      53475 FrScA-S116-02                  1212                  0 
+# ℹ 707 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="data-source-3-self-report-survey" class="level4">
+<h4 class="anchored" data-anchor-id="data-source-3-self-report-survey">Data Source #3: Self-Report Survey</h4>
+<p>The third data source is a self-report survey. This was data collected before the start of the course. The survey included ten items, each corresponding to one of three motivation measures: interest, utility value, and perceived competence. The three motivation measures we explore here come from Expectancy-Value Theory, which states that students are motivated to learn when they both believe that they can achieve something (expectancy, also known as “perceived competence”) and believe that the concept they are trying to learn is important (value) <span class="citation" data-cites="wigfield2000expectancy">[@wigfield2000expectancy]</span>. For a more information about this survey, including the specific items included, see <a href="https://datascienceineducation.com/c07.html#data-sources">Chapter 7 of Data Science in Education Using R</a> <span class="citation" data-cites="estrellado2020data">[@estrellado2020data]</span>.</p>
+<p>In the code chunk below, read in to R the <code>survey.csv</code> file located in the data folder. You can use the code above as a template. Assign the output from the <code>read_csv()</code> function to a new object named <code>survey</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>survey<span class="ot">&lt;-</span><span class="fu">read_csv</span>(<span class="st">"Data/survey.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 662 Columns: 26
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr   (3): course_id, subject, semester
+dbl  (20): student_id, section, int, val, percomp, tv, q1, q2, q3, q4, q5, q...
+dttm  (3): date.x, date.y, date
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>survey</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 662 × 26
+   student_id course_id subject semester section   int   val percomp    tv    q1
+        &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1      43146 FrScA-S2… FrScA   S216           2   4.2  3.67     4    3.86     4
+ 2      44638 OcnA-S11… OcnA    S116           1   4    3        3    3.57     4
+ 3      47448 FrScA-S2… FrScA   S216           1   4.2  3        3    3.71     5
+ 4      47979 OcnA-S21… OcnA    S216           1   4    3.67     2.5  3.86     4
+ 5      48797 PhysA-S1… PhysA   S116           1   3.8  3.67     3.5  3.71     4
+ 6      51943 FrScA-S2… FrScA   S216           3   3.8  3.67     3.5  3.71     4
+ 7      52326 AnPhA-S2… AnPhA   S216           1   3.6  4        3    4        4
+ 8      52446 PhysA-S1… PhysA   S116           1   4.2  3.67     3    4        4
+ 9      53447 FrScA-S1… FrScA   S116           1   3.8  2        3    3        5
+10      53475 FrScA-S2… FrScA   S216           1   4.8  3.33     4    4.14     5
+# ℹ 652 more rows
+# ℹ 16 more variables: q2 &lt;dbl&gt;, q3 &lt;dbl&gt;, q4 &lt;dbl&gt;, q5 &lt;dbl&gt;, q6 &lt;dbl&gt;,
+#   q7 &lt;dbl&gt;, q8 &lt;dbl&gt;, q9 &lt;dbl&gt;, q10 &lt;dbl&gt;, date.x &lt;dttm&gt;, post_int &lt;dbl&gt;,
+#   post_uv &lt;dbl&gt;, post_tv &lt;dbl&gt;, post_percomp &lt;dbl&gt;, date.y &lt;dttm&gt;,
+#   date &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<p>After reading the data, let’s continue the practice of looking at our data. Type <code>survey</code> into the console to take a look at the data or add <code>survey</code> on a new line in your code chunk above. Does it appear to be the correct file? What do the variables seem to be about? What wrangling steps do we need to take? Taking a quick peak at the data helps us to begin to formulate answers to these questions is an important step in any data analysis.</p>
+<p><strong>RStudio Tip:</strong> If you happen to run into issues with data import, RStudio has a handy “Import Dataset” feature for a point and click approach to adding data to your environment. If you want to give this a try, be sure to pay attention to the default settings and the name it will give your data frame when imported.</p>
+<p><img src="Img/import.png" class="img-fluid" width="559"></p>
+</section>
+<section id="view-data" class="level4">
+<h4 class="anchored" data-anchor-id="view-data">View Data</h4>
+<p>Once your data is in R, there are many different ways you can view it. Give each of the following at try:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># enter the name of your data frame and view directly in the console or a code chunk</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>survey</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 662 × 26
+   student_id course_id subject semester section   int   val percomp    tv    q1
+        &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1      43146 FrScA-S2… FrScA   S216           2   4.2  3.67     4    3.86     4
+ 2      44638 OcnA-S11… OcnA    S116           1   4    3        3    3.57     4
+ 3      47448 FrScA-S2… FrScA   S216           1   4.2  3        3    3.71     5
+ 4      47979 OcnA-S21… OcnA    S216           1   4    3.67     2.5  3.86     4
+ 5      48797 PhysA-S1… PhysA   S116           1   3.8  3.67     3.5  3.71     4
+ 6      51943 FrScA-S2… FrScA   S216           3   3.8  3.67     3.5  3.71     4
+ 7      52326 AnPhA-S2… AnPhA   S216           1   3.6  4        3    4        4
+ 8      52446 PhysA-S1… PhysA   S116           1   4.2  3.67     3    4        4
+ 9      53447 FrScA-S1… FrScA   S116           1   3.8  2        3    3        5
+10      53475 FrScA-S2… FrScA   S216           1   4.8  3.33     4    4.14     5
+# ℹ 652 more rows
+# ℹ 16 more variables: q2 &lt;dbl&gt;, q3 &lt;dbl&gt;, q4 &lt;dbl&gt;, q5 &lt;dbl&gt;, q6 &lt;dbl&gt;,
+#   q7 &lt;dbl&gt;, q8 &lt;dbl&gt;, q9 &lt;dbl&gt;, q10 &lt;dbl&gt;, date.x &lt;dttm&gt;, post_int &lt;dbl&gt;,
+#   post_uv &lt;dbl&gt;, post_tv &lt;dbl&gt;, post_percomp &lt;dbl&gt;, date.y &lt;dttm&gt;,
+#   date &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view your data frame transposed so your can see every column and the first few entries</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(survey) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 662
+Columns: 26
+$ student_id   &lt;dbl&gt; 43146, 44638, 47448, 47979, 48797, 51943, 52326, 52446, 5…
+$ course_id    &lt;chr&gt; "FrScA-S216-02", "OcnA-S116-01", "FrScA-S216-01", "OcnA-S…
+$ subject      &lt;chr&gt; "FrScA", "OcnA", "FrScA", "OcnA", "PhysA", "FrScA", "AnPh…
+$ semester     &lt;chr&gt; "S216", "S116", "S216", "S216", "S116", "S216", "S216", "…
+$ section      &lt;dbl&gt; 2, 1, 1, 1, 1, 3, 1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 1, …
+$ int          &lt;dbl&gt; 4.2, 4.0, 4.2, 4.0, 3.8, 3.8, 3.6, 4.2, 3.8, 4.8, 4.6, 3.…
+$ val          &lt;dbl&gt; 3.666667, 3.000000, 3.000000, 3.666667, 3.666667, 3.66666…
+$ percomp      &lt;dbl&gt; 4.0, 3.0, 3.0, 2.5, 3.5, 3.5, 3.0, 3.0, 3.0, 4.0, 4.0, 3.…
+$ tv           &lt;dbl&gt; 3.857143, 3.571429, 3.714286, 3.857143, 3.714286, 3.71428…
+$ q1           &lt;dbl&gt; 4, 4, 5, 4, 4, 4, 4, 4, 5, 5, 4, 3, 4, 4, 5, 4, 4, 5, 5, …
+$ q2           &lt;dbl&gt; 4, 2, 3, 3, 4, 4, 4, 4, 2, 4, 5, 1, 3, 2, 5, 4, 4, 4, 3, …
+$ q3           &lt;dbl&gt; 4, 2, 3, 2, 3, 3, 4, 3, 3, 4, 4, 3, 3, 2, 4, 3, 3, 4, 4, …
+$ q4           &lt;dbl&gt; 5, 4, 4, 4, 4, 4, 2, 4, 4, 5, 4, 4, 4, 5, 5, 4, 4, 5, 5, …
+$ q5           &lt;dbl&gt; 4, 4, 4, 4, 4, 3, 4, 4, 4, 5, 5, 4, 4, 5, 5, 4, 4, 5, 5, …
+$ q6           &lt;dbl&gt; 4, 4, 3, 4, 4, 3, 4, 4, 2, 3, 5, 3, 3, 3, 5, 4, 4, 4, 5, …
+$ q7           &lt;dbl&gt; 4, 4, 3, 3, 4, 4, 2, 3, 3, 4, 4, 4, 4, 4, 4, 4, 3, 5, 4, …
+$ q8           &lt;dbl&gt; 4, 4, 4, 4, 4, 4, 4, 5, 4, 5, 5, 3, 4, 5, 5, 4, 5, 5, 5, …
+$ q9           &lt;dbl&gt; 3, 3, 3, 4, 3, 4, 4, 3, 2, 3, 4, 2, 3, 1, 5, 3, 3, 4, 3, …
+$ q10          &lt;dbl&gt; 4, 4, 4, 4, 3, 4, 4, 4, 2, 4, 5, 3, 4, 3, 5, 4, 5, 5, 5, …
+$ date.x       &lt;dttm&gt; 2016-02-02 18:44:00, 2015-09-09 13:41:00, 2016-01-28 14:…
+$ post_int     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, 3.50, 3.75, NA, 5.00, NA, NA,…
+$ post_uv      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, 3.666667, 2.000000, NA, 4.666…
+$ post_tv      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, 3.571429, 3.000000, NA, 4.857…
+$ post_percomp &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, 3.5, 3.0, NA, 4.0, NA, NA, 3.…
+$ date.y       &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, 2016-01-02 00:41:00, 2015-10…
+$ date         &lt;dttm&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># look at just the first six entries</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(survey) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 26
+  student_id course_id  subject semester section   int   val percomp    tv    q1
+       &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1      43146 FrScA-S21… FrScA   S216           2   4.2  3.67     4    3.86     4
+2      44638 OcnA-S116… OcnA    S116           1   4    3        3    3.57     4
+3      47448 FrScA-S21… FrScA   S216           1   4.2  3        3    3.71     5
+4      47979 OcnA-S216… OcnA    S216           1   4    3.67     2.5  3.86     4
+5      48797 PhysA-S11… PhysA   S116           1   3.8  3.67     3.5  3.71     4
+6      51943 FrScA-S21… FrScA   S216           3   3.8  3.67     3.5  3.71     4
+# ℹ 16 more variables: q2 &lt;dbl&gt;, q3 &lt;dbl&gt;, q4 &lt;dbl&gt;, q5 &lt;dbl&gt;, q6 &lt;dbl&gt;,
+#   q7 &lt;dbl&gt;, q8 &lt;dbl&gt;, q9 &lt;dbl&gt;, q10 &lt;dbl&gt;, date.x &lt;dttm&gt;, post_int &lt;dbl&gt;,
+#   post_uv &lt;dbl&gt;, post_tv &lt;dbl&gt;, post_percomp &lt;dbl&gt;, date.y &lt;dttm&gt;,
+#   date &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># or the last six entries</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span>(survey) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 26
+  student_id course_id  subject semester section   int   val percomp    tv    q1
+       &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1         19 AnPhA-S21… AnPhA   S217           2   4.2  5        5    4.5      5
+2         42 FrScA-S21… FrScA   S217           1   4    4        4    4        4
+3         52 FrScA-S21… FrScA   S217           3   4.4  2.67     3.5  3.75     4
+4         57 FrScA-S21… FrScA   S217           1   4.4  2.33     2.5  3.62     5
+5         72 FrScA-S21… FrScA   S217           1   5    3        4    4.25     5
+6         80 FrScA-S21… FrScA   S217           1   3.6  2.33     3    3.12     4
+# ℹ 16 more variables: q2 &lt;dbl&gt;, q3 &lt;dbl&gt;, q4 &lt;dbl&gt;, q5 &lt;dbl&gt;, q6 &lt;dbl&gt;,
+#   q7 &lt;dbl&gt;, q8 &lt;dbl&gt;, q9 &lt;dbl&gt;, q10 &lt;dbl&gt;, date.x &lt;dttm&gt;, post_int &lt;dbl&gt;,
+#   post_uv &lt;dbl&gt;, post_tv &lt;dbl&gt;, post_percomp &lt;dbl&gt;, date.y &lt;dttm&gt;,
+#   date &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># view the names of your variables or columns</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(survey) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "student_id"   "course_id"    "subject"      "semester"     "section"     
+ [6] "int"          "val"          "percomp"      "tv"           "q1"          
+[11] "q2"           "q3"           "q4"           "q5"           "q6"          
+[16] "q7"           "q8"           "q9"           "q10"          "date.x"      
+[21] "post_int"     "post_uv"      "post_tv"      "post_percomp" "date.y"      
+[26] "date"        </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># or view in source pane</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(survey)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Yes, the “V” is capitalized—very unusual for an R function (the tidyverse does have it’s own lowercase <code>view()</code> function if that bothers you though). Because this function is a bit atypical in more ways than one, I have two recommendations concerning its use:</p>
+<ul>
+<li><p>Use it strictly in the console. Because it opens a new viewing window, <strong>including it in an R Markdown or Quarto document can cause issues when “knitting” or “rendering”</strong> an HTML (or PDF) file. Hence I have included the <code>eval: false</code> option in the code chunk so it does not run when you render your document.</p></li>
+<li><p>Close the viewer window that opens once you have viewed the data. Keeping it open can clutter your work space a bit and can lead to confusion about what data frame it was you viewed.</p></li>
+</ul>
+</section>
+</section>
+<section id="b.-tidy-data" class="level3">
+<h3 class="anchored" data-anchor-id="b.-tidy-data">2b. Tidy Data</h3>
+<p>Tidy data refers to a consistent way to organize your data in R. In our course text, <a href="https://r4ds.had.co.nz/tidy-data.html">R for Data Science</a>, Hadley Wickham notes that getting your data into this format requires some work, but that work pays off in the long term:</p>
+<blockquote class="blockquote">
+<p>Once you have tidy data and the tidy tools provided by packages in the tidyverse, you will spend much less time munging data from one representation to another, allowing you to spend more time on the analytic questions at hand.</p>
+</blockquote>
+<p>Not surprisingly, the Tidyverse set of packages including packages like&nbsp;<code>dplyr</code>&nbsp;adhere “tidy” data principles. Tidy data has three interrelated rules which make a dataset tidy:</p>
+<ol type="1">
+<li><p>Each variable is a column</p></li>
+<li><p>Each observation is a row</p></li>
+<li><p>Each type of observational unit is a table</p></li>
+</ol>
+<section id="process-log-data" class="level4">
+<h4 class="anchored" data-anchor-id="process-log-data">Process Log Data</h4>
+<p>Earlier, we imported <code>time_spent</code>, which contains information on the number of minutes that students spent on the course, as well as other variables, particularly <code>course_id</code>.</p>
+<p>Information about the course subject, semester, and section are not stored in a “tidy” format, but rather a single variable—<code>course_id</code>. This format of data storage is not ideal. If we instead give each piece of information its own column, we’ll have more opportunities for later analysis. We’ll use a function called <code>separate()</code> to do this.</p>
+<p>First, let’s practice with a small data set. We’ll create it directly in R; run the code below to do that (and to assign the name <code>df</code> to the dataset).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">course_var =</span> <span class="fu">c</span>(<span class="st">"Fall - Chemistry"</span>, </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                            <span class="st">"Fall - Earth Science"</span>, </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>                            <span class="st">"Spring - Forensic Science"</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                            <span class="st">"Spring - Earth Science"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                            <span class="st">"Spring - Biology"</span>))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 1
+  course_var               
+  &lt;chr&gt;                    
+1 Fall - Chemistry         
+2 Fall - Earth Science     
+3 Spring - Forensic Science
+4 Spring - Earth Science   
+5 Spring - Biology         </code></pre>
+</div>
+</div>
+<p>Print <code>df</code> to the console. You should see a single variable, <code>course_var</code>, with four rows.</p>
+<p>In this (very small) data frame, there is information about both the semester and the course are encoded within the same variable. The <code>separate()</code> function has two primary arguments, one each for:</p>
+<ol type="1">
+<li>the variable you want to separate</li>
+<li>the names of the new variables to create</li>
+</ol>
+<p>Below, see using <code>course_var</code> for #1, and <code>c("Semester", "Course")</code> for #2, can be used to separate the semester and course data into two separate variable</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(course_var, <span class="fu">c</span>(<span class="st">"semester"</span>, <span class="st">"course"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Additional pieces discarded in 3 rows [2, 3, 4].</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  semester course   
+  &lt;chr&gt;    &lt;chr&gt;    
+1 Fall     Chemistry
+2 Fall     Earth    
+3 Spring   Forensic 
+4 Spring   Earth    
+5 Spring   Biology  </code></pre>
+</div>
+</div>
+<p>Note that we used the <code>|&gt;</code> operator called a <strong>pipe</strong> that was introduced in our earlier class. Recall that pipes, including the original <code>%&gt;%</code> pipe operator, are a powerful tool for combining a sequence of functions or processes. Here we used it to send our <code>df</code> data frame to the <code>seprate()</code> function.</p>
+<p>We could also have written the function as follows, with our data frame as the first argument in the function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">separate</span>(df, course_var, <span class="fu">c</span>(<span class="st">"semester"</span>, <span class="st">"course"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Expected 2 pieces. Additional pieces discarded in 3 rows [2, 3, 4].</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  semester course   
+  &lt;chr&gt;    &lt;chr&gt;    
+1 Fall     Chemistry
+2 Fall     Earth    
+3 Spring   Forensic 
+4 Spring   Earth    
+5 Spring   Biology  </code></pre>
+</div>
+</div>
+<p>All of the {<a href="https://dplyr.tidyverse.org">dplyr</a>} functions like and many {tidyverse} functions like <code>separate()</code> take a data frame (or <a href="https://tibble.tidyverse.org">tibble</a>) as the first argument. However, it can be helpful for just for general code readability to separate (no pun intended) your data frame from the functions and starting your first line of code with the data frame to be wrangled. This is a pretty standard convention when writing R code.</p>
+<p>Next, let’s try something slightly different. Here, we have a data frame with a variable that encodes three pieces of information within the same variable: the year, semester, and subject. There are also a few other differences.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>df2 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">course_variable =</span> <span class="fu">c</span>(<span class="st">"19-Fall-Algebra1"</span>, </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"20-Fall-Algebra2"</span>, </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"20-Spring-Algebra2"</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"20-Spring-Algebra2"</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">"21-Fall-Algebra1"</span>))</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>df2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 1
+  course_variable   
+  &lt;chr&gt;             
+1 19-Fall-Algebra1  
+2 20-Fall-Algebra2  
+3 20-Spring-Algebra2
+4 20-Spring-Algebra2
+5 21-Fall-Algebra1  </code></pre>
+</div>
+</div>
+<p>Can you separate the variable in the above data frame not into two, but rather three, new variables?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>df2 <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(course_variable, </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"semester"</span>, <span class="st">"subject"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 3
+  year  semester subject 
+  &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;   
+1 19    Fall     Algebra1
+2 20    Fall     Algebra2
+3 20    Spring   Algebra2
+4 20    Spring   Algebra2
+5 21    Fall     Algebra1</code></pre>
+</div>
+</div>
+<p><strong>Hint</strong>: Try to modify the code from above (in which you separated <code>course_var</code> into two variables) based on a) the name of the variable in <code>df2</code> and b) adding the name for the third new variable you wish to create.</p>
+<p>Let’s return back to our <code>time_spent</code> data frame, now. It is often helpful to take a look at the data before writing code.</p>
+<p>Below, we will load <code>time_spent</code> and run the <code>separate()</code> function with the <code>course_id</code> variable to split up the subject, semester, and section so we can use them later on. In other words, whereas above we separated the variable <code>course_variable</code>, in the data set we’ll use here, we’ll separate the <code>course_id</code> variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>time_spent <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(course_id,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"subject"</span>, <span class="st">"semester"</span>, <span class="st">"section"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 716 × 8
+   student_id subject semester section gender enrollment_reason                 
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;                             
+ 1      60186 AnPhA   S116     01      M      Course Unavailable at Local School
+ 2      66693 AnPhA   S116     01      M      Course Unavailable at Local School
+ 3      66811 AnPhA   S116     01      F      Course Unavailable at Local School
+ 4      66862 AnPhA   S116     01      F      Course Unavailable at Local School
+ 5      67508 AnPhA   S116     01      F      Scheduling Conflict               
+ 6      70532 AnPhA   S116     01      F      Learning Preference of the Student
+ 7      77010 AnPhA   S116     01      F      Learning Preference of the Student
+ 8      85249 AnPhA   S116     01      F      Course Unavailable at Local School
+ 9      85411 AnPhA   S116     01      F      Scheduling Conflict               
+10      85583 AnPhA   S116     01      F      Scheduling Conflict               
+# ℹ 706 more rows
+# ℹ 2 more variables: enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>There is one last key step – one that is likely to be a bit disorienting at first. Once we’ve processed the data how we would like, we have to assign, or save, the results back to the name for the data with which we have been working. This is done with the assignment operator, or the &lt;- symbol.</p>
+<p>Copy the code you successfully ran in the chunk above to follow the assignment operator in the chunk below. In other words, write the code you wrote above, but assign the output back to <code>time_spent</code> so that it now includes the course id separated into three distinct variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>time_spent <span class="ot">&lt;-</span>time_spent <span class="sc">|&gt;</span> <span class="fu">separate</span>(course_id, </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"subject"</span>, <span class="st">"semester"</span>, <span class="st">"section"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Note</strong>: It would have been perfectly acceptable, and in some cases preferable, to assign to a new name such as <code>time_spent_tidy</code>. However, to help keep our environment pane from becoming too cluttered and avoid confusion, we will reuse the same object name.</p>
+<p>We have made a habit of continually looking at our data after running code to ensure that the step worked as intended. Type the name of the data we have been working with in the code chunk below to ensure that the course_id variable has been separated into three variables that correspond to the subject, semester, and section.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>time_spent</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 716 × 8
+   student_id subject semester section gender enrollment_reason                 
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;                             
+ 1      60186 AnPhA   S116     01      M      Course Unavailable at Local School
+ 2      66693 AnPhA   S116     01      M      Course Unavailable at Local School
+ 3      66811 AnPhA   S116     01      F      Course Unavailable at Local School
+ 4      66862 AnPhA   S116     01      F      Course Unavailable at Local School
+ 5      67508 AnPhA   S116     01      F      Scheduling Conflict               
+ 6      70532 AnPhA   S116     01      F      Learning Preference of the Student
+ 7      77010 AnPhA   S116     01      F      Learning Preference of the Student
+ 8      85249 AnPhA   S116     01      F      Course Unavailable at Local School
+ 9      85411 AnPhA   S116     01      F      Scheduling Conflict               
+10      85583 AnPhA   S116     01      F      Scheduling Conflict               
+# ℹ 706 more rows
+# ℹ 2 more variables: enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>If something doesn’t look right, consider re-running the code chunks above, perhaps returning all the way to the first code chunk that you ran (to load the data) to ensure that the output is as you intended for it to be.</p>
+</section>
+</section>
+</section>
+<section id="unit-3-case-study-starts-here" class="level1">
+<h1>!!!Unit 3: Case Study Starts Here!!!</h1>
+<p>Remember to run the previous codes before coming to the here. Otherwise, you get errors below.</p>
+<section id="mutate-a-column-to-change-the-time-spent-variable-to-represent-hours" class="level3">
+<h3 class="anchored" data-anchor-id="mutate-a-column-to-change-the-time-spent-variable-to-represent-hours"><strong>“Mutate” a column to change the time spent variable to represent hours</strong></h3>
+<p>There are so many functions that can serve as general purpose tools that can solve many problems; one of the most useful is <strong>mutate()</strong>, a function to create new variables in a data set. Specifically, we’ll use <strong>mutate()</strong> to create a new variable for the percentage of points each student earned; keep in mind as you work through these steps how so many parts of wrangling data involves either changing a variable or creating a new one. For these purposes, mutate can be very helpful. Let’s begin again with a small data set with two variables, var_a and var_b. Run the chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>df3<span class="ot">&lt;-</span><span class="fu">tibble</span>(<span class="at">var_a=</span><span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">50</span>, <span class="dv">30</span>, <span class="dv">10</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">40</span>, <span class="dv">30</span>, <span class="dv">20</span>, <span class="dv">50</span>), </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_b=</span><span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">90</span>, <span class="dv">60</span>, <span class="dv">70</span>, <span class="dv">60</span>, <span class="dv">80</span>, <span class="dv">70</span>, <span class="dv">50</span>, <span class="dv">30</span>, <span class="dv">20</span>))</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>df3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 2
+   var_a var_b
+   &lt;dbl&gt; &lt;dbl&gt;
+ 1    30   100
+ 2    50    90
+ 3    30    60
+ 4    10    70
+ 5    30    60
+ 6    40    80
+ 7    40    70
+ 8    30    50
+ 9    20    30
+10    50    20</code></pre>
+</div>
+</div>
+<p>Next, print df3 to the console. You should see two numeric variables.</p>
+<p>Now imagine they represent points that students earned on a 50-point quiz and a 100-point test, respectively. There are a lot of things that you might wish to do with these variables. For instance, you may wish to create a new variable named points_sum that is the sum of var_a and var_b. The code below does this. Give it a try:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>df3 <span class="sc">|&gt;</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">points_sum=</span>var_a<span class="sc">+</span>var_b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   var_a var_b points_sum
+   &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;
+ 1    30   100        130
+ 2    50    90        140
+ 3    30    60         90
+ 4    10    70         80
+ 5    30    60         90
+ 6    40    80        120
+ 7    40    70        110
+ 8    30    50         80
+ 9    20    30         50
+10    50    20         70</code></pre>
+</div>
+</div>
+</section>
+<section id="your-turn" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn"><strong>Your Turn</strong></h3>
+<p>We can combine many mutate() functions together. Below, complete the following code to create a new variable (let’s call it <strong>points_proportion</strong>) that represents the proportion of the total points students could, potentially, earn. To do this, you can divide <strong>points_sum</strong> created in the second line of code by the maximum possible points – 150.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>df3 <span class="sc">|&gt;</span> </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">points_sum =</span> var_a <span class="sc">+</span> var_b) <span class="sc">|&gt;</span> </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">points_proportion =</span> points_sum<span class="sc">/</span><span class="dv">150</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   var_a var_b points_sum points_proportion
+   &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;             &lt;dbl&gt;
+ 1    30   100        130             0.867
+ 2    50    90        140             0.933
+ 3    30    60         90             0.6  
+ 4    10    70         80             0.533
+ 5    30    60         90             0.6  
+ 6    40    80        120             0.8  
+ 7    40    70        110             0.733
+ 8    30    50         80             0.533
+ 9    20    30         50             0.333
+10    50    20         70             0.467</code></pre>
+</div>
+</div>
+<p><strong>Hint</strong>: Just like you can use the + symbol to add variables together, you can use the / symbol to divide a variable by another – or by a value, like 150!</p>
+<p>You should see output that contains four variables, one each for <strong>var_a</strong> and <strong>var_b</strong>, <strong>points_sum</strong>, which represents the sum of the points students earned, and <strong>points_proportion</strong>, which represents the percentage of the total points students earned.</p>
+</section>
+<section id="your-turn-1" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-1"><strong>Your Turn</strong></h3>
+<p>Let’s now process the time_spent variable. Specifically, this variable currently represents the number of <em>minutes</em> that students spent on the course LMS. Below, add to the template of code below to <strong>create a new variable, time_spent_hours, that represents the number of <em>hours</em> that students spent on the course LMS</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>time_spent <span class="sc">|&gt;</span> </span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_spent_hours =</span> time_spent<span class="sc">/</span><span class="dv">60</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 716 × 9
+   student_id subject semester section gender enrollment_reason                 
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;                             
+ 1      60186 AnPhA   S116     01      M      Course Unavailable at Local School
+ 2      66693 AnPhA   S116     01      M      Course Unavailable at Local School
+ 3      66811 AnPhA   S116     01      F      Course Unavailable at Local School
+ 4      66862 AnPhA   S116     01      F      Course Unavailable at Local School
+ 5      67508 AnPhA   S116     01      F      Scheduling Conflict               
+ 6      70532 AnPhA   S116     01      F      Learning Preference of the Student
+ 7      77010 AnPhA   S116     01      F      Learning Preference of the Student
+ 8      85249 AnPhA   S116     01      F      Course Unavailable at Local School
+ 9      85411 AnPhA   S116     01      F      Scheduling Conflict               
+10      85583 AnPhA   S116     01      F      Scheduling Conflict               
+# ℹ 706 more rows
+# ℹ 3 more variables: enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;,
+#   time_spent_hours &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>Hint</strong>: Refer to the code you wrote above, being clear about a) what the name of the new variable you are creating is and b) how you will create this variable using division (by the number of minutes in an hour).</p>
+<p>We used the above as a test bed to ensure that our code worked as intended. Once we are confident that we are creating the variable in the way we intend to, we can assign the output back to the data frame that time_spent refers to.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>time_spent <span class="ot">&lt;-</span> time_spent <span class="sc">|&gt;</span> </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">time_spent_hours =</span> time_spent<span class="sc">/</span><span class="dv">60</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Good work wrangling this dataset!</p>
+</section>
+<section id="process-gradebook-data" class="level3">
+<h3 class="anchored" data-anchor-id="process-gradebook-data">Process Gradebook Data</h3>
+<p>Now let’s process the gradebook data. In particular, we’ll separate the course_id variable in the same way we separated that variable in the log data, and we’ll also calculate a new variable representing the proportion of points students earned (out of the points possible to earn).</p>
+<p>Let’s start with separating the course_id variable. Run the code in the next chunk to do this. If you named the three parts of the course ID differently than they’re named below (and saved the data you processed to use in this case study), be sure that these three variables are named identically; this is the <em>key</em> (pun intended!) to these variables joining correctly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>gradebook <span class="ot">&lt;-</span>gradebook <span class="sc">|&gt;</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(course_id, </span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>           <span class="fu">c</span>(<span class="st">"subject"</span>, <span class="st">"semester"</span>, <span class="st">"section"</span>))</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>gradebook</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 717 × 6
+   student_id subject semester section total_points_possible total_points_earned
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;                   &lt;dbl&gt;               &lt;dbl&gt;
+ 1      43146 FrScA   S216     02                       1217               1150 
+ 2      44638 OcnA    S116     01                       1676               1384.
+ 3      47448 FrScA   S216     01                       1232               1116 
+ 4      47979 OcnA    S216     01                       1833               1493.
+ 5      48797 PhysA   S116     01                       2225               1995.
+ 6      51943 FrScA   S216     03                       1222                 70 
+ 7      52326 AnPhA   S216     01                       1775               1519.
+ 8      52446 PhysA   S116     01                       2225               2198 
+ 9      53447 FrScA   S116     01                       1212               1173 
+10      53475 FrScA   S116     02                       1212                  0 
+# ℹ 707 more rows</code></pre>
+</div>
+</div>
+<p>Next, we’ll mutate our data set to create a new column, one representing the proportion of points students earned. Let’s consider a data frame with example data, df4 .</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>df4<span class="ot">&lt;-</span><span class="fu">tibble</span>(<span class="at">var_a=</span><span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="dv">8</span>, <span class="dv">7</span>, <span class="dv">8</span>), </span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">var_b=</span><span class="dv">9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Note</strong>: To create df4, for var_a, we passed a <em>vector</em> that we created with the function c() that contains 10 values. Consider these to be the number of times that learners participated in an outside-of-school STEM club. Instead of passing another vector for var_b, we simply used the value 9, which represents the number of opportunities students had to participate in the outside-of–school STEM club . In this case, the value 9 is repeated for however many rows there are in the data frame. Thus, in the context of creating a data frame, var_b = 9 is the same as var_b = c(9, 9, 9, 9, 9, 9, 9, 9, 9, 9).</p>
+<p>Since interpreting proportions when the denominator is nine can be difficult, we may which to create a variable for the proportion.</p>
+</section>
+<section id="your-turn-2" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-2"><strong>Your Turn</strong></h3>
+<p>After running the chunk above, print <code>df4</code> to the console to get a sense of what the data frame consists of. To create a third variable that represents the proportion of STEM club activities students participated in, divide <code>var_a</code> by <code>var_b</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>df4 <span class="sc">|&gt;</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">var_c =</span> var_a <span class="sc">/</span> var_b)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 3
+   var_a var_b var_c
+   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1     8     9 0.889
+ 2     8     9 0.889
+ 3     7     9 0.778
+ 4     8     9 0.889
+ 5     9     9 1    
+ 6     6     9 0.667
+ 7     8     9 0.889
+ 8     8     9 0.889
+ 9     7     9 0.778
+10     8     9 0.889</code></pre>
+</div>
+</div>
+<p>What happens if the output is different than you intended? That’s no problem! Re-run the code-chunk <em>above</em> (in which we create <code>df</code>) to have a blank slate with which to try again.</p>
+</section>
+<section id="your-turn-3" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-3"><strong>Your Turn</strong></h3>
+<p>Your turn once more. This time, create a new variable—here, let’s name it <code>proportion_earned</code>—using the <code>gradebook</code> data. This will involve using the mutate function with the <code>gradebook</code> data, creating a new variable (<code>proportion_earned</code>) on the basis of the values of two existing variables:</p>
+<ul>
+<li><p><code>total_points_earned</code></p></li>
+<li><p><code>total_points_possible</code></p></li>
+</ul>
+<p>Also, once your code is ready, you’ll need to assign the results back to <code>gradebook</code>. This is challenging as you’re starting from scratch with the code. However, good R programmers use other code (that they or others wrote!) often, so feel free to copy and paste code from other, similar problems to give yourself a head start.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>gradebook <span class="ot">&lt;-</span> gradebook <span class="sc">|&gt;</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">proportion_earned =</span> total_points_earned <span class="sc">/</span> total_points_possible)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Once the above step is complete, take another look at <code>gradebook</code> by printing it to the console or viewing it using a preferred method. There should now be seven columns, the six originally in the data and a new, seventh variable you’ve “mutated.”</p>
+</section>
+<section id="process-survey-data" class="level3">
+<h3 class="anchored" data-anchor-id="process-survey-data">Process Survey Data</h3>
+<p>Finally, let’s process our survey data that we imported earlier. First though, take a quick look again by typing <code>survey</code> into the console or using a preferred viewing method to take a look at the data.</p>
+<p>Does it appear to be the correct file? What do the variables seem to be about? What wrangling steps do we need to take? Taking a quick peak at the data helps us to begin to formulate answers to these and is an important step in any data analysis, especially as we <em>prepare</em> for what we are going to do.</p>
+</section>
+<section id="your-turn-4" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-4"><strong>Your Turn</strong></h3>
+<p>Add one or more of the things you notice or wonder about the data here:</p>
+<ul>
+<li>I can see that there are multiple survey question responses here (likely something like Likert scale answers). I can see there are multiple date columns, some of which includes year, date, and month (date.x and date.y) and I wonder if we’ll need to separate those values. I can also see there’s a column called “date” that simply contains no data (“NA”) so that column may need to be removed.</li>
+</ul>
+</section>
+<section id="c.-joining-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="c.-joining-the-data">2c. Joining the data</h3>
+<p>We’re now ready to join! At their core, joins involve operations on two data frames at the same time. This may seem useful only in certain cases, but consider the following data analysis tasks:</p>
+<ul>
+<li><p>You have collected data from <em>students</em> from one of ten classrooms; at the same time, you have data on the <em>teachers</em> of those ten classes (five of which tried out a new curriculum, and five who taught a “business-as-usual” curriculum</p></li>
+<li><p>You are studying the posts on <em>Twitter</em> and <em>Pinterest</em> of one of around 100 mathematics teachers</p></li>
+<li><p>After working with a local school district, you collected survey responses from 100s of <em>teachers</em> who teach in one of approximately 25 elementary, middle, and high <em>schools</em>; you received data from the district on the characteristics of the schools, including how many students they serve and how many teachers work in them</p></li>
+</ul>
+<p>In each of these cases—and many others like them—your single analysis involves multiple data files. While in some cases it is possible to analyze each data set individually, it is often useful (or necessary, depending upon your goal) to join these sources of data together. This is especially the case for learning analytics research, in which researchers and analysts often are interested in understanding teaching and learning through the lens of multiple data sources, including digital data, institutional records, and survey data, among other sources. In all of these cases, knowing how to promptly join together files—even files with tens of thousands of hundreds of thousands of rows—can be empowering.</p>
+<p>Consider two example data frames. <code>df5</code> contains a variable with four student names, <code>name</code> and a variable for the number of STEM-related classes they have taken, <code>n_stem_classes</code>.</p>
+<p><code>df6</code> contains a variable with three student names, <code>name</code> (like in <code>df5</code>), as well as another, different variable, for students’ self-reported interest in STEM topics, <code>interest_in_stem</code>, measured on a one-seven scale, with seven indicating higher levels of interest.</p>
+<p>Run the code below and then type <code>df5</code> and <code>df6</code> in the console.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>df5 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Sheila"</span>, <span class="st">"Tayla"</span>, <span class="st">"Marcus"</span>),</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">n_stem_classes =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>))</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>df5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  name   n_stem_classes
+  &lt;chr&gt;           &lt;dbl&gt;
+1 Sheila              4
+2 Tayla               5
+3 Marcus              6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>df6 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Tayla"</span>, <span class="st">"Marcus"</span>, <span class="st">"Sheila"</span>, <span class="st">"Vin"</span>),</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">interest_in_stem =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">6</span>))</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>df6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  name   interest_in_stem
+  &lt;chr&gt;             &lt;dbl&gt;
+1 Tayla                 4
+2 Marcus                7
+3 Sheila                6
+4 Vin                   6</code></pre>
+</div>
+</div>
+<p>A key (pun intended) with joins is to consider what variable(s) will serve as the <em>key</em>. This is the variable to join by.</p>
+<p>A key must have two characteristics:</p>
+<ol type="1">
+<li><p>The variable(s) used as the key <strong>must be present in both of the data frames</strong> you are joining.</p></li>
+<li><p>The variable(s) used as the key <strong>must be of the same data type</strong> (e.g., character, numeric, integer, double, etc.).</p></li>
+</ol>
+<p>To join two datasets, it is important that the <em>key</em> (or <em>keys</em>) on which you are joining the data is formatted identically. The key represents an identifier that is present in both of the data sets you are joining. For instance, you may have data collected from (or created about) the same students that are from two very different sources, such as a self-report survey of students and their teacher-assigned grades in class.</p>
+<p>While some of the time it takes some thought to determine what the key is (or what the keys are—you can join on multiple keys!), in the above case, there is just one variable that meets both of the above characteristics.</p>
+</section>
+<section id="your-turn-5" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-5"><strong>Your Turn</strong></h3>
+<p>In the code below, enter the name of the variable that is the key within the quotation marks following <code>by =</code>. Then run the code chunk and note the output.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">full_join</span>(df5, df6, <span class="at">by =</span> <span class="st">"name"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  name   n_stem_classes interest_in_stem
+  &lt;chr&gt;           &lt;dbl&gt;            &lt;dbl&gt;
+1 Sheila              4                6
+2 Tayla               5                4
+3 Marcus              6                7
+4 Vin                NA                6</code></pre>
+</div>
+</div>
+<p>What do you notice about the output of the <code>full_join()</code>? All observations are valid; consider how the output is similar to and different from <code>df5</code> and <code>df6</code>, particularly in one or more notes following the bullet point.</p>
+<ul>
+<li>I notice that the data has successfully been joined together. However, Vin has “NA” in the n_stem_classes column so there’s no data for this student.</li>
+</ul>
+<p><code>full_join()</code> is one of a number of joins from which we can choose. <code>full_join()</code> is distinguished from the other joins by how it returns <em>all</em> of the rows in both of the data frames being joined. If a particular key is present in one of the data frames but not the other, the values for the variable in the data set for which the key is not present are simply recorded as missing (like in the above, where there is no value for the number of STEM classes Vin has taken).</p>
+<p>There is one other join on which we’ll focus for now. That is <code>left_join()</code>, which differs from <code>full_join()</code> in that it returns all of the rows in the “left” data frame, the data frame named first in the function, but not all of the rows in the “right” data frame: it retains only the rows in the “right” data frame, the data frame named second in the function, that have a matching key. An example is necessary. Before running the code below, add the same key you added above.</p>
+</section>
+<section id="your-turn-6" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-6"><strong>Your Turn</strong></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(df5, df6, <span class="at">by =</span> <span class="st">"name"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 3
+  name   n_stem_classes interest_in_stem
+  &lt;chr&gt;           &lt;dbl&gt;            &lt;dbl&gt;
+1 Sheila              4                6
+2 Tayla               5                4
+3 Marcus              6                7</code></pre>
+</div>
+</div>
+<p>Different from the above, <code>left_join()</code> did not return all of the rows from both data frames, instead returning <em>all</em> of the rows in the “left” data frame (and those in the “right” data frame with a match).</p>
+</section>
+<section id="join-gradebook-and-log-data" class="level3">
+<h3 class="anchored" data-anchor-id="join-gradebook-and-log-data">Join Gradebook and Log Data</h3>
+<p>For now, we’re going to use a single join function, <code>full_join()</code>. In the code below, join <code>gradebook</code> and <code>time_spent</code>; type the names of those two data frames as arguments to the <code>full_join()</code> function in a similar manner as in the <code>full_join()</code> code above, and then run this code chunk. For now, don’t specify anything for the <code>by =</code> argument of the function.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># join together the gradebook and log_wrangled</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>joined_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(gradebook, time_spent)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining with `by = join_by(student_id, subject, semester, section)`</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>joined_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 830 × 12
+   student_id subject semester section total_points_possible total_points_earned
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;                   &lt;dbl&gt;               &lt;dbl&gt;
+ 1      43146 FrScA   S216     02                       1217               1150 
+ 2      44638 OcnA    S116     01                       1676               1384.
+ 3      47448 FrScA   S216     01                       1232               1116 
+ 4      47979 OcnA    S216     01                       1833               1493.
+ 5      48797 PhysA   S116     01                       2225               1995.
+ 6      51943 FrScA   S216     03                       1222                 70 
+ 7      52326 AnPhA   S216     01                       1775               1519.
+ 8      52446 PhysA   S116     01                       2225               2198 
+ 9      53447 FrScA   S116     01                       1212               1173 
+10      53475 FrScA   S116     02                       1212                  0 
+# ℹ 820 more rows
+# ℹ 6 more variables: proportion_earned &lt;dbl&gt;, gender &lt;chr&gt;,
+#   enrollment_reason &lt;chr&gt;, enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;,
+#   time_spent_hours &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>You may notice a message in the console or first output box above that says <code>Joining, c("student_id", "subject", "semester", "section")</code>. This is telling us that these files are being joined on the basis of all four of these variables matching in both data sets; in other words, for rows to be joined, they must match identically on all four of these variables.</p>
+<p>This is related to not specifying anything for the <code>by =</code> part of the function; by default, <code>full_join()</code> (and <code>left_join()</code>) will consider any character strings with identical names that are present in both data sets to be keys. But, it’s generally better practice to specify the variables on which we are joining.</p>
+</section>
+<section id="your-turn-7" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-7"><strong>Your Turn</strong></h3>
+<p>In the code chunk below, write your join like above, but add the <code>c("student_id", "subject", "semester", "section")</code> part to your code. You may notice the red message you may have noticed does not appear. This is generally a better practice because you know precisely on which variables you data sets are joining.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>joined_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(gradebook, time_spent, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"student_id"</span>, <span class="st">"subject"</span>, <span class="st">"semester"</span>, <span class="st">"section"</span>))</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>joined_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 830 × 12
+   student_id subject semester section total_points_possible total_points_earned
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;                   &lt;dbl&gt;               &lt;dbl&gt;
+ 1      43146 FrScA   S216     02                       1217               1150 
+ 2      44638 OcnA    S116     01                       1676               1384.
+ 3      47448 FrScA   S216     01                       1232               1116 
+ 4      47979 OcnA    S216     01                       1833               1493.
+ 5      48797 PhysA   S116     01                       2225               1995.
+ 6      51943 FrScA   S216     03                       1222                 70 
+ 7      52326 AnPhA   S216     01                       1775               1519.
+ 8      52446 PhysA   S116     01                       2225               2198 
+ 9      53447 FrScA   S116     01                       1212               1173 
+10      53475 FrScA   S116     02                       1212                  0 
+# ℹ 820 more rows
+# ℹ 6 more variables: proportion_earned &lt;dbl&gt;, gender &lt;chr&gt;,
+#   enrollment_reason &lt;chr&gt;, enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;,
+#   time_spent_hours &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>Hint:</strong> If you’re curious about how to format the use of the <code>by =</code> part of your code, look up above at how you used this argument to the <code>full_join()</code> function.</p>
+<p>What do you notice about the result—the data you joined? In particular, how does it differ from the two data sets from which it was created? Add one or more notes below.</p>
+<ul>
+<li>All data, including the “additional”/not duplicated columns appear in the new joined_data frame. All information can be seen in a single file. The initial columns appear exactly like it does in gradebook and any of the “missing” columns (that appeared in time_spent but not gradebook) are added toward the right/end.</li>
+</ul>
+</section>
+<section id="join-gradebook-and-survey-data" class="level3">
+<h3 class="anchored" data-anchor-id="join-gradebook-and-survey-data">Join Gradebook and Survey Data</h3>
+<p>Now let’s try joining on our final data set so that our LMS, gradebook and survey data are all in a single data frame for analysis called <code>data_to_explore</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># join together the gradebook and log_wrangled</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>data_to_explore <span class="ot">&lt;-</span> <span class="fu">full_join</span>(joined_data, survey, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"student_id"</span>, <span class="st">"subject"</span>, <span class="st">"semester"</span>, <span class="st">"section"</span>))</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>data_to_explore</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Oops! You probably noticed a red error message telling us that <code>x$section</code> and <code>y$section</code> are not of the same data type. This is basically telling us we are not meeting the second criteria of a key noted above. Specifically, somewhere we have a mismatch in data types in our <code>joined_data</code> and <code>survey</code> data frames among our student_id, subject, semester or section variables; something we were warned about earlier.</p>
+</section>
+<section id="your-turn-8" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-8"><strong>Your Turn</strong></h3>
+<p>Run the following code chunk to inspect our two data frames and record below the variable used in our key where we have a mismatch in data type:</p>
+<ul>
+<li>Looking at the data frames, it appears there’s a problem with the way section is formatted. In joined_data, the section column includes 0’s before the section number whereas survey just has a single digit number.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>joined_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 830 × 12
+   student_id subject semester section total_points_possible total_points_earned
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;                   &lt;dbl&gt;               &lt;dbl&gt;
+ 1      43146 FrScA   S216     02                       1217               1150 
+ 2      44638 OcnA    S116     01                       1676               1384.
+ 3      47448 FrScA   S216     01                       1232               1116 
+ 4      47979 OcnA    S216     01                       1833               1493.
+ 5      48797 PhysA   S116     01                       2225               1995.
+ 6      51943 FrScA   S216     03                       1222                 70 
+ 7      52326 AnPhA   S216     01                       1775               1519.
+ 8      52446 PhysA   S116     01                       2225               2198 
+ 9      53447 FrScA   S116     01                       1212               1173 
+10      53475 FrScA   S116     02                       1212                  0 
+# ℹ 820 more rows
+# ℹ 6 more variables: proportion_earned &lt;dbl&gt;, gender &lt;chr&gt;,
+#   enrollment_reason &lt;chr&gt;, enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;,
+#   time_spent_hours &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>survey</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 662 × 26
+   student_id course_id subject semester section   int   val percomp    tv    q1
+        &lt;dbl&gt; &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1      43146 FrScA-S2… FrScA   S216           2   4.2  3.67     4    3.86     4
+ 2      44638 OcnA-S11… OcnA    S116           1   4    3        3    3.57     4
+ 3      47448 FrScA-S2… FrScA   S216           1   4.2  3        3    3.71     5
+ 4      47979 OcnA-S21… OcnA    S216           1   4    3.67     2.5  3.86     4
+ 5      48797 PhysA-S1… PhysA   S116           1   3.8  3.67     3.5  3.71     4
+ 6      51943 FrScA-S2… FrScA   S216           3   3.8  3.67     3.5  3.71     4
+ 7      52326 AnPhA-S2… AnPhA   S216           1   3.6  4        3    4        4
+ 8      52446 PhysA-S1… PhysA   S116           1   4.2  3.67     3    4        4
+ 9      53447 FrScA-S1… FrScA   S116           1   3.8  2        3    3        5
+10      53475 FrScA-S2… FrScA   S216           1   4.8  3.33     4    4.14     5
+# ℹ 652 more rows
+# ℹ 16 more variables: q2 &lt;dbl&gt;, q3 &lt;dbl&gt;, q4 &lt;dbl&gt;, q5 &lt;dbl&gt;, q6 &lt;dbl&gt;,
+#   q7 &lt;dbl&gt;, q8 &lt;dbl&gt;, q9 &lt;dbl&gt;, q10 &lt;dbl&gt;, date.x &lt;dttm&gt;, post_int &lt;dbl&gt;,
+#   post_uv &lt;dbl&gt;, post_tv &lt;dbl&gt;, post_percomp &lt;dbl&gt;, date.y &lt;dttm&gt;,
+#   date &lt;dttm&gt;</code></pre>
+</div>
+</div>
+<section id="change-data-type" class="level4">
+<h4 class="anchored" data-anchor-id="change-data-type">Change Data Type</h4>
+<p>We can use the <code>mutate()</code> function that we learned about in our tutorials to also change data types!</p>
+<p>Run the code chunk below to “mutate” the <code>section</code> variable in our <code>joined_data</code> table from a “character” data type to a “dbl” data type, i.e.&nbsp;numeric variable to a character variable using the base R <code>as.double()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>joined_data <span class="ot">&lt;-</span> joined_data <span class="sc">|&gt;</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">section =</span> <span class="fu">as.double</span>(section))</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>joined_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 830 × 12
+   student_id subject semester section total_points_possible total_points_earned
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt;                 &lt;dbl&gt;               &lt;dbl&gt;
+ 1      43146 FrScA   S216           2                  1217               1150 
+ 2      44638 OcnA    S116           1                  1676               1384.
+ 3      47448 FrScA   S216           1                  1232               1116 
+ 4      47979 OcnA    S216           1                  1833               1493.
+ 5      48797 PhysA   S116           1                  2225               1995.
+ 6      51943 FrScA   S216           3                  1222                 70 
+ 7      52326 AnPhA   S216           1                  1775               1519.
+ 8      52446 PhysA   S116           1                  2225               2198 
+ 9      53447 FrScA   S116           1                  1212               1173 
+10      53475 FrScA   S116           2                  1212                  0 
+# ℹ 820 more rows
+# ℹ 6 more variables: proportion_earned &lt;dbl&gt;, gender &lt;chr&gt;,
+#   enrollment_reason &lt;chr&gt;, enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;,
+#   time_spent_hours &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>A quick note about “dbl” (short for double) vs.&nbsp;“numeric” data types. “dbl” is the designation you’ll commonly see for numeric columns when printing a tibble (a modern form of data frame provided by the tidyverse). This is just a user-friendly way to indicate that the column contains numeric (double-precision) data. For a nice simple list of data types and examples, check out this short article on the tidyverse website: <a href="https://tibble.tidyverse.org/articles/types.htmlhttps://tibble.tidyverse.org/articles/types.html">https://tibble.tidyverse.org/articles/types.html</a>.</p>
+</section>
+</section>
+<section id="your-turn-9" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-9"><strong>Your Turn</strong></h3>
+<p>In the code chunk below, try joining our two data frames again using the same code from above:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>data_to_explore <span class="ot">&lt;-</span> <span class="fu">full_join</span>(joined_data, survey, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"student_id"</span>, <span class="st">"subject"</span>, <span class="st">"semester"</span>, <span class="st">"section"</span>))</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>data_to_explore</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 943 × 34
+   student_id subject semester section total_points_possible total_points_earned
+        &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt;                 &lt;dbl&gt;               &lt;dbl&gt;
+ 1      43146 FrScA   S216           2                  1217               1150 
+ 2      44638 OcnA    S116           1                  1676               1384.
+ 3      47448 FrScA   S216           1                  1232               1116 
+ 4      47979 OcnA    S216           1                  1833               1493.
+ 5      48797 PhysA   S116           1                  2225               1995.
+ 6      51943 FrScA   S216           3                  1222                 70 
+ 7      52326 AnPhA   S216           1                  1775               1519.
+ 8      52446 PhysA   S116           1                  2225               2198 
+ 9      53447 FrScA   S116           1                  1212               1173 
+10      53475 FrScA   S116           2                  1212                  0 
+# ℹ 933 more rows
+# ℹ 28 more variables: proportion_earned &lt;dbl&gt;, gender &lt;chr&gt;,
+#   enrollment_reason &lt;chr&gt;, enrollment_status &lt;chr&gt;, time_spent &lt;dbl&gt;,
+#   time_spent_hours &lt;dbl&gt;, course_id &lt;chr&gt;, int &lt;dbl&gt;, val &lt;dbl&gt;,
+#   percomp &lt;dbl&gt;, tv &lt;dbl&gt;, q1 &lt;dbl&gt;, q2 &lt;dbl&gt;, q3 &lt;dbl&gt;, q4 &lt;dbl&gt;, q5 &lt;dbl&gt;,
+#   q6 &lt;dbl&gt;, q7 &lt;dbl&gt;, q8 &lt;dbl&gt;, q9 &lt;dbl&gt;, q10 &lt;dbl&gt;, date.x &lt;dttm&gt;,
+#   post_int &lt;dbl&gt;, post_uv &lt;dbl&gt;, post_tv &lt;dbl&gt;, post_percomp &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p>Congratulations! We’re done wrangling our data and it is ready to explore!</p>
+</section>
+<section id="explore" class="level2">
+<h2 class="anchored" data-anchor-id="explore">3. EXPLORE</h2>
+<p>As highlighted in both <a href="https://datascienceineducation.com/c03.html#doing-analysis-exploring-visualizing-and-modeling-data">DSEIUR</a> and Learning Analytics Goes to School, calculating summary statistics and data visualization are a key part of exploratory data analysis. One goal in this phase is explore questions that drove the original analysis and develop new questions and hypotheses to test in later stages. Topics addressed in Part 3 include:</p>
+<ul>
+<li><p><strong>Summarize Key Stats</strong>. We’ll learn about the {skmir} package for pulling together some quick descriptive statistics when your goal is to understand your data internally.</p></li>
+<li><p><strong>Visualize Data</strong>. We’ll introduce the histogram geom for taking a quick peak the distributions of some key variables and put together some scatter plots for examining potential relationships between time spent and student performance.</p></li>
+<li><p><strong>Correlated Variables.</strong> We’ll wrap up our Part 3 by learning to create a correlation matrix for quantifying these relationships between key variables and student performance.</p></li>
+</ul>
+<section id="a.-table-summaries" class="level3">
+<h3 class="anchored" data-anchor-id="a.-table-summaries">3a. Table Summaries</h3>
+<p>At this point, we should have quite the comprehensive data set, including single measures from a) students for the time they spent in the course LMS and other information about them, such as information on why they are enrolled in the course, b) their academic achievement.</p>
+<section id="skimr-package" class="level4">
+<h4 class="anchored" data-anchor-id="skimr-package">Skimr Package</h4>
+<p>An efficient package for creating descriptive statistics <em>when your goal is to understand your data internally</em> (rather than to create a table for an external-to-the-research-team audience, like for a journal article) is the {skimr} package. A key feature of the {skimr} package is that it works well with the {tidyverse} packages we are using: it takes data frames as input, and returns data frames as output, which means we can manipulate them with {tidyverse} functions like <code>select()</code>, <code>filter()</code>, and <code>arrange()</code>, for example.</p>
+<p>Let’s load the {skimr} package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The challenge here is not the complexity of the <code>skim()</code> function, per se, but will be comprehending the terminology. In the code chunk below:</p>
+<ul>
+<li><p>Pass to the <code>skim()</code> function a single argument (recall from our tutorials last week that functions have <em>names</em> and <em>arguments!</em>)</p></li>
+<li><p>That single <em>argument</em> is the data frame (aka in tidyverse parlance, a tibble) for which you are aiming to calculate descriptive statistics</p></li>
+</ul>
+<p>Run the following code to “skim” our <code>data_to_explore</code> tibble:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(data_to_explore)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">data_to_explore</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">943</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">34</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">POSIXct</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 11%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">subject</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">semester</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">gender</td>
+<td style="text-align: right;">227</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">enrollment_reason</td>
+<td style="text-align: right;">227</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">34</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">enrollment_status</td>
+<td style="text-align: right;">227</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">course_id</td>
+<td style="text-align: right;">281</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">student_id</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">98989.73</td>
+<td style="text-align: right;">66673.70</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">84717.00</td>
+<td style="text-align: right;">89345.00</td>
+<td style="text-align: right;">96423.50</td>
+<td style="text-align: right;">265635.00</td>
+<td style="text-align: left;">▂▇▁▁▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">section</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.48</td>
+<td style="text-align: right;">0.73</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">2.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: left;">▇▃▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">total_points_possible</td>
+<td style="text-align: right;">226</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">1619.55</td>
+<td style="text-align: right;">387.12</td>
+<td style="text-align: right;">1212.00</td>
+<td style="text-align: right;">1217.00</td>
+<td style="text-align: right;">1676.00</td>
+<td style="text-align: right;">1791.00</td>
+<td style="text-align: right;">2425.00</td>
+<td style="text-align: left;">▇▂▆▁▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">total_points_earned</td>
+<td style="text-align: right;">226</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">1229.98</td>
+<td style="text-align: right;">510.64</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1002.50</td>
+<td style="text-align: right;">1177.13</td>
+<td style="text-align: right;">1572.45</td>
+<td style="text-align: right;">2413.50</td>
+<td style="text-align: left;">▂▂▇▅▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">proportion_earned</td>
+<td style="text-align: right;">226</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.72</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">1.01</td>
+<td style="text-align: left;">▁▁▁▃▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">time_spent</td>
+<td style="text-align: right;">232</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">1828.80</td>
+<td style="text-align: right;">1363.13</td>
+<td style="text-align: right;">0.45</td>
+<td style="text-align: right;">895.57</td>
+<td style="text-align: right;">1559.97</td>
+<td style="text-align: right;">2423.94</td>
+<td style="text-align: right;">8870.88</td>
+<td style="text-align: left;">▇▅▁▁▁</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">time_spent_hours</td>
+<td style="text-align: right;">232</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">30.48</td>
+<td style="text-align: right;">22.72</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">14.93</td>
+<td style="text-align: right;">26.00</td>
+<td style="text-align: right;">40.40</td>
+<td style="text-align: right;">147.85</td>
+<td style="text-align: left;">▇▅▁▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">int</td>
+<td style="text-align: right;">293</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">4.30</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">1.80</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.40</td>
+<td style="text-align: right;">4.80</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▂▆▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">val</td>
+<td style="text-align: right;">287</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">3.75</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.33</td>
+<td style="text-align: right;">3.67</td>
+<td style="text-align: right;">4.33</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▆▇▆</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">percomp</td>
+<td style="text-align: right;">288</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">3.64</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">1.50</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">3.50</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▇▃▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">tv</td>
+<td style="text-align: right;">292</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">4.07</td>
+<td style="text-align: right;">0.59</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.71</td>
+<td style="text-align: right;">4.12</td>
+<td style="text-align: right;">4.46</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▂▇▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">q1</td>
+<td style="text-align: right;">285</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">4.34</td>
+<td style="text-align: right;">0.66</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▁▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">q2</td>
+<td style="text-align: right;">285</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">3.66</td>
+<td style="text-align: right;">0.93</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▂▆▇▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">q3</td>
+<td style="text-align: right;">286</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">3.31</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▂▇▅▂</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">q4</td>
+<td style="text-align: right;">289</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">4.35</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▁▆▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">q5</td>
+<td style="text-align: right;">286</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">4.28</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▁▇▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">q6</td>
+<td style="text-align: right;">285</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">4.05</td>
+<td style="text-align: right;">0.80</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▃▇▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">q7</td>
+<td style="text-align: right;">286</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">3.96</td>
+<td style="text-align: right;">0.85</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▅▇▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">q8</td>
+<td style="text-align: right;">286</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">4.35</td>
+<td style="text-align: right;">0.65</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▁▇▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">q9</td>
+<td style="text-align: right;">286</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">3.55</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▂▇▇▃</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">q10</td>
+<td style="text-align: right;">285</td>
+<td style="text-align: right;">0.70</td>
+<td style="text-align: right;">4.17</td>
+<td style="text-align: right;">0.87</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▃▇▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">post_int</td>
+<td style="text-align: right;">848</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">3.88</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.50</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">4.50</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▁▃▇▇</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">post_uv</td>
+<td style="text-align: right;">848</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">3.48</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">3.67</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▂▂▅▇▅</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">post_tv</td>
+<td style="text-align: right;">848</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">3.71</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.29</td>
+<td style="text-align: right;">3.86</td>
+<td style="text-align: right;">4.29</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▂▃▇▆</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">post_percomp</td>
+<td style="text-align: right;">848</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">3.47</td>
+<td style="text-align: right;">0.88</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: right;">3.00</td>
+<td style="text-align: right;">3.50</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">5.00</td>
+<td style="text-align: left;">▁▂▂▇▂</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: POSIXct</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 9%">
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 8%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">date.x</td>
+<td style="text-align: right;">393</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: left;">2015-09-02 15:40:00</td>
+<td style="text-align: left;">2016-05-24 15:53:00</td>
+<td style="text-align: left;">2015-10-01 15:57:30</td>
+<td style="text-align: right;">536</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">date.y</td>
+<td style="text-align: right;">848</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: left;">2015-09-02 15:31:00</td>
+<td style="text-align: left;">2016-01-22 15:43:00</td>
+<td style="text-align: left;">2016-01-04 13:25:00</td>
+<td style="text-align: right;">95</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">date</td>
+<td style="text-align: right;">834</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: left;">2017-01-23 13:14:00</td>
+<td style="text-align: left;">2017-02-13 13:00:00</td>
+<td style="text-align: left;">2017-01-25 18:43:00</td>
+<td style="text-align: right;">107</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="your-turn-10" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-10"><strong>Your Turn</strong></h3>
+<p>What do you notice about the output? These observations might pertain to the format of the output or its values (i.e., what the mean for the <code>val</code> variable is). Note one or two of these noticings or wonderings below:</p>
+<ul>
+<li>In the Column Type Frequency section, I wasn’t sure what the “POSIXct” type referred to (character and numeric made sense to me as far as formatting). In looking at the rest of the data, it looks like POSIXct may refer to a particular type of date + time stamp formatting.</li>
+</ul>
+<p>As we noted earlier, the {skimr} package works nicely with other {tidyverse} functions.</p>
+<p><strong>Hint:</strong> For help, also consider running <code>?skim()</code> in the console to view the documentation for the function.</p>
+</section>
+<section id="your-turn-11" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-11"><strong>Your Turn</strong></h3>
+<p>Recall from our previous work, how we isolated data using the <code>select()</code> and <code>filter()</code> functions. In the code chunk below, look at descriptives for just <code>proportion_earned</code> , <code>time_spent</code> and <code>gender</code>, but only for the “OcnA” and “PhysA” subjects.</p>
+<p>Can you do this by modifying the code below to do this?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>data_to_explore <span class="sc">%&gt;%</span>  </span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(subject <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"OcnA"</span>, <span class="st">"PhysA"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(proportion_earned, time_spent, gender) <span class="sc">%&gt;%</span> </span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">skim</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">Piped data</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">249</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">gender</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">proportion_earned</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">0.78</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.73</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">1.00</td>
+<td style="text-align: left;">▁▁▁▃▇</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">time_spent</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">0.81</td>
+<td style="text-align: right;">1828.56</td>
+<td style="text-align: right;">1374.13</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">943.07</td>
+<td style="text-align: right;">1601.13</td>
+<td style="text-align: right;">2356.88</td>
+<td style="text-align: right;">8870.88</td>
+<td style="text-align: left;">▇▅▁▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>This output is best for internal use. This is because the output is rich, but not well-suited to exporting to a table that you add, for instance, to a Google Docs or Microsoft Word manuscript. Of course, these values can be entered manually into a table, but we’ll also discuss ways later on to create tables that are ready–or nearly-ready–to be added directly to manuscripts.</p>
+<p>If you are curious about doing more with {skimr}, check out: <a href="https://cran.r-project.org/web/packages/skimr/vignettes/skimr.html" class="uri">&lt;https://cran.r-project.org/web/packages/skimr/vignettes/skimr.html&gt;</a></p>
+</section>
+<section id="b.-data-visualization" class="level3">
+<h3 class="anchored" data-anchor-id="b.-data-visualization">3b. Data Visualization</h3>
+<p>Data visualization is an extremely common practice in Learning Analytics, especially in the use of data dashboards. Data visualization involves graphically representing one or more variables with the goal of discovering patterns in data. These patterns may help us to answer research questions or generate new questions about our data, to discover relationships between and among variables, and to create or select features for data modeling.</p>
+</section>
+<section id="the-graphing-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="the-graphing-workflow">The Graphing Workflow</h3>
+<p>Before visually exploring our data, let’s revisit the basic code template for the {<a href="https://ggplot2.tidyverse.org">ggplot2</a>} package from the tidyverse. <code>ggplot2</code> is a system for declaratively creating graphics, based on <a href="https://ggplot2-book.org/introduction.html#what-is-the-grammar-of-graphics">the grammar of graphics</a> <span class="citation" data-cites="Wickham">[@Wickham]</span>. You provide the data, tell ggplot2 how to map variables to <a href="https://ggplot2.tidyverse.org/reference/aes.html">aesthetics</a>, what graphical elements to use, and it takes care of the details.</p>
+<p>At it’s core, you can create some very simple but attractive graphs with just a couple lines of code. {<a href="https://ggplot2.tidyverse.org">ggplot2</a>} follows the common workflow for making graphs. To make a graph, you simply:</p>
+<ol type="1">
+<li><p>Start the graph with <code>ggplot()</code> and include your data as an argument;</p></li>
+<li><p>“Add” elements to the graph using the <code>+</code> operator a&nbsp;<a href="https://ggplot2.tidyverse.org/reference/#geoms"><code>geom_()</code> function</a>;</p></li>
+<li><p>Select variables to graph on each axis with the <code>aes()</code> argument.</p></li>
+</ol>
+<p>Let’s give it a try by creating a simple histogram of our <code>time_spent_hours</code> variable. You likely noticed that the <code>skim()</code> function created some miniature histrograms for each of the numeric variables in our <code>data-to-explore</code> data frame. Since we are especially interested in whether time spent in the online course is related to student performance, let’s take a closer look at this variable.</p>
+<p>The code below creates a histogram with 30 bins – the default number for <code>geom_histogram</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_spent_hours), <span class="at">bins =</span> <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 232 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Note that the first function, <code>ggplot()</code>, creates a coordinate system that you can “add” layers to using additional functions and <code>+</code> operator. The first argument of <code>ggplot()</code> is the dataset, in our case <code>data_to_explore</code>, to use for the graph.</p>
+<p>By itself, <code>ggplot(data_to_explore)</code> just creates an empty graph. But when you add a required <code>geom_()</code> function like <code>geom_histogram()</code>, you tell it which type of graph you want to make, in our case a histogram. A <strong>geom</strong> is the geometrical object that a plot uses to represent observations. People often describe plots by the type of geom that the plot uses. For example, bar charts use bar geoms, line charts use line geoms, boxplots use boxplot geoms, and so on. Scatterplots, which we’ll see a in bit, break the trend; they use the point geom.</p>
+<p>The final required element for any graph is a <code>mapping =</code> argument that defines which variables in your dataset are mapped to which axes in your graph. The <code>mapping</code> argument is always paired with the function <code>aes()</code>, which you use to gather together all of the mappings that you want to create. In our case, since we just created a simple histogram, we only had to specify what variable to place on the x axis, which in our case was <code>time_spent_hours</code>.</p>
+<p>Note that we also included the <code>bins =</code> argument in our <code>geom_historgram()</code> function. Again, by default this is set to 30. Aside from the <code>bins =</code> argument, <code>geom_historgram()</code> has other arguments that you can modify, search the Help tab in the Files pane for ” geom_histrogram” or type <code>?geom_histogram</code> in the Console to open the help page.</p>
+<p><strong>Pro Tip</strong>: If you scroll to the bottom of most help pages for functions, you will see and examples section with code for executing those functions. You can copy and paste that code in the console to view the output of those functions and discover different ways they can be used.</p>
+</section>
+<section id="your-turn-12" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-12"><strong>Your Turn</strong></h3>
+<p>Now change the number of bins using the code chunk below below and note any differences in what you interpret about the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_spent_hours), <span class="at">bins =</span> <span class="dv">100</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 232 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>What do you think the ideal number of bins is—with what is ideal being the number of bins that helps you to interpret the overall distribution of the values for how much time students’ spent (<em>note</em>: there is no one right or wrong answer here!)?</p>
+<ul>
+<li>Overall, I think 30 bins seems about right. I changed the code a few times (testing 15 bins originally, then 100, then 40). The 30-50 range seems about the same/don’t provide additional information or insight. At 100 bins, I can see some additional peaks but I’m unsure if these will ultimately be relevant.</li>
+</ul>
+<section id="faceting" class="level4">
+<h4 class="anchored" data-anchor-id="faceting">Faceting</h4>
+<p>Next we’ll introduce the <code>facet_wrap()</code> function for creating <em>small multiples</em>, or plots that are specific to subsets of your data. These subsets are identified based on another variable in your dataset. For example, the code below uses the built-in <code>mpg</code> dataset to plot the relationship between the displacement of a car’s engine and its highway miles per gallon fuel efficiency.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpg) <span class="sc">+</span> </span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(displ, hwy))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The code in the next plot creates individual plots for each class—think compact car or SUV.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpg) <span class="sc">+</span> </span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(displ, hwy)) <span class="sc">+</span></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="your-turn-13" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-13"><strong>Your Turn</strong></h3>
+<p>In the code below, create a faceted histogram based on the subject of the course. To do so, consider both:</p>
+<ul>
+<li><p>What code you used to create the histogram of the time students’ spent on the course</p></li>
+<li><p>How, in the example above, <code>facet_wrap</code> refers to the variable in that data frame that represents the class of the car—but modifying the code to work for your subject variable</p></li>
+</ul>
+<p>You may also wish to change the color; reflect back to the getting started task for an example of how to do this.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span> </span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(proportion_earned, time_spent_hours)) <span class="sc">+</span></span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>subject)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 345 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>What do you notice about this figure? What questions do you have? Add a note (or a few notes!) below:</p>
+<ul>
+<li>I adjusted the code from what I originally had. I was struggling to interpret the time spent with the overall course grade (percentage), so I ultimately flipped the x/y axis (so time spent appeared on the Y axis and percentage/grade appeared on the x axis). It’s much easier to see what’s going on in BioA vs FrScA because so many of the dots in FrScA overlap.</li>
+</ul>
+<section id="scatter-plots" class="level4">
+<h4 class="anchored" data-anchor-id="scatter-plots">Scatter Plots</h4>
+<p>Having prepared the data sets we joined together, and worked hard to join those data sets, we’re now ready to use this joined data set in our exploration of how the time students spent on the course LMS relate to the number of points they earned throughout the course.</p>
+<p>We’ll be using the {ggplot2} package again, but, this time, will be creating a different type of plot.</p>
+<p>Run the code below to create a scatter plot of the proportion of points students earned and the number of hours they spent on the course LMS.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_spent_hours, <span class="at">y =</span> proportion_earned))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 345 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-45-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>What do you notice about this graph? And what do you wonder? How about the code—what do you notice about it (and what do you wonder)? Add one or more of what you see as the most important elements.</p>
+<ul>
+<li>There’s a high concentration in the top left of the graph, indicating that a high percentage in the course may somewhat be correlated to time spent. There’s one outlier in the top right (who spent a lot of time in the course site, more than most peers, and also achieved a high grade) and a smaller concentration around the bottom left spending 0 hours (or close to 0 hours) and also receiving a low grade. The code is fairly basic so I’m not wondering much about the code itself, but I expect to expand on it to further analyze the data or revise how things are displayed (adding titles, customizing title of legends, etc.)</li>
+</ul>
+<p>Using {ggplot2} makes it efficient to iterate through different versions of similar plots. For instance, we can color the points by a third variable, such as the reason for which students enrolled in the course, to begin to explore what was going on for students who spent very little time on the course:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_spent_hours, <span class="at">y =</span> proportion_earned, </span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> enrollment_status))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 345 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-46-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="your-turn-14" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-14"><strong>Your Turn</strong></h3>
+<p>We can also additionally create faceted plots, in the code below, facet the plot by <code>subject</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_spent_hours, <span class="at">y =</span> proportion_earned, </span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> enrollment_status)) <span class="sc">+</span></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>subject)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 345 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>You may wish to style your plot. A few ways you can do that are as follows; we’ll discuss more throughout the institute. For each of the following, add them to your plot by adding a plus symbol to the line prior to the line you are adding. For instance, the following code styles the x-axis label of a plot:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_spent_hours, <span class="at">y =</span> proportion_earned, </span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> enrollment_status)) <span class="sc">+</span></span>
+<span id="cb96-4"><a href="#cb96-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Time Spent (Hours)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 345 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-48-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Try adding (and modifying, if you’d like) any of the following to the faceted plot you created in the code chunk below:</p>
+<ul>
+<li><p><code>xlab("Time Spent (Hours)")</code></p></li>
+<li><p><code>ylab("Proportion of Points Earned")</code></p></li>
+<li><p><code>scale_color_brewer("Enrollment Status", type = "qual", palette = 3)</code></p></li>
+<li><p><code>ggtitle("How Time Spent on Course LMS is Related to Points Earned in the Course")</code></p></li>
+<li><p><code>theme(legend.position = "bottom")</code></p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_to_explore) <span class="sc">+</span></span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> time_spent_hours, <span class="at">y =</span> proportion_earned, </span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> enrollment_status)) <span class="sc">+</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Time Spent (Hours)"</span>) <span class="sc">+</span></span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion of Points Earned"</span>) <span class="sc">+</span></span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_brewer</span>(<span class="st">"Enrollment Status"</span>, <span class="at">type =</span> <span class="st">"qual"</span>, <span class="at">palette =</span> <span class="dv">6</span>) <span class="sc">+</span></span>
+<span id="cb98-7"><a href="#cb98-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Figure 1: How Time Spent on Course LMS is Related to Points Earned in the Course"</span>) <span class="sc">+</span> </span>
+<span id="cb98-8"><a href="#cb98-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 345 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="CaseStudy_files/figure-html/unnamed-chunk-49-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Once you have settled on a plot you are happy with (for now!), add a sentence or two interpreting your graph (like you were describing it within a journal article):</p>
+<ul>
+<li>Data in Figure 1: How Time Spent on Course LMS is Related to Points Earned in the Course represents shows how time spent is related to the overall course grade, with more time spent in the course correlating with higher grades. Data is further broken down by enrollment status showing that students with lower course grades and less time spent may be more likely to drop (blue) or withdraw (green) from a course.</li>
+</ul>
+</section>
+<section id="c.-create-a-correlation-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="c.-create-a-correlation-matrix">3c. Create a Correlation Matrix</h3>
+<p>The scatter plots are a useful initial approach for identifying potential correlational trends between variables under investigation, but to further interrogate the significance of selected variables as indicators of student achievement, a simple correlation analysis of each variable with student final grade can be conducted.</p>
+<p>There are two efficient ways to create correlation matrices, one that is best for internal use, and one that is best for inclusion in a manuscript.</p>
+<section id="corrr-package" class="level4">
+<h4 class="anchored" data-anchor-id="corrr-package">Corrr Package</h4>
+<p>First, the {corrr} package provides a way to create a correlation matrix in a {tidyverse}-friendly way. Like for the {skimr} package, it can take as little as a line of code to create a correlation matrix. If not familiar, a correlation matrix is a table that presents how <em>all of the variables</em> are related to <em>all of the other variables</em>.</p>
+<p>Run the following code to load the {corrr} package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'corrr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:skimr':
+
+    focus</code></pre>
+</div>
+</div>
+</section>
+<section id="time-spent-and-course-grade" class="level4">
+<h4 class="anchored" data-anchor-id="time-spent-and-course-grade">Time Spent and Course Grade</h4>
+<p>Since the primary purpose of this case study is to investigate whether time spent in an online course is predictive of student achievement, let’s first take a look and see if there is a simple correlation between time spent and student achievement.</p>
+<p>Run the following code to create a simple correlation matrix using the <code>correlate()</code> function from the {corrr} package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a>data_to_explore <span class="sc">|&gt;</span> </span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(proportion_earned, time_spent_hours) <span class="sc">|&gt;</span></span>
+<span id="cb103-3"><a href="#cb103-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">correlate</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Correlation computed with
+• Method: 'pearson'
+• Missing treated using: 'pairwise.complete.obs'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 3
+  term              proportion_earned time_spent_hours
+  &lt;chr&gt;                         &lt;dbl&gt;            &lt;dbl&gt;
+1 proportion_earned            NA                0.438
+2 time_spent_hours              0.438           NA    </code></pre>
+</div>
+</div>
+<p>As our scatterplot suggested, there is positive correlation (0.438) between time spent and the percentage of total points a student earned, suggesting that students who spend more time in the LMS also tend to have a higher proportion of points earned.</p>
+<p>For the purpose of printing, and as a quick aside, the {corrr} package also has a nice <code>fashion()</code> function for converting a correlation data frame into a matrix with the correlations cleanly formatted (leading zeros removed; spaced for signs) and the diagonal (or any NA) left blank.</p>
+<p>Run the following code to try it out:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>data_to_explore <span class="sc">|&gt;</span> </span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(proportion_earned, time_spent_hours, int, val, percomp) <span class="sc">|&gt;</span> </span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">correlate</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rearrange</span>() <span class="sc">|&gt;</span></span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shave</span>() <span class="sc">|&gt;</span></span>
+<span id="cb106-6"><a href="#cb106-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fashion</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Correlation computed with
+• Method: 'pearson'
+• Missing treated using: 'pairwise.complete.obs'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               term time_spent_hours proportion_earned  int  val percomp
+1  time_spent_hours                                                     
+2 proportion_earned              .44                                    
+3               int              .08               .14                  
+4               val              .10               .02  .53             
+5           percomp              .05               .08  .56  .48        </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="your-turn-15" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-15"><strong>Your Turn</strong></h3>
+<p>In the code chunk below, select 3-4 numeric variables in addition to <code>time_spent_hours</code> that you think may be related to student achievement, i.e.&nbsp;<code>proportion_earned</code>, and run a simple correlation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>data_to_explore <span class="sc">|&gt;</span> </span>
+<span id="cb109-2"><a href="#cb109-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(proportion_earned, time_spent_hours, total_points_earned) <span class="sc">|&gt;</span> </span>
+<span id="cb109-3"><a href="#cb109-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">correlate</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb109-4"><a href="#cb109-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rearrange</span>() <span class="sc">|&gt;</span></span>
+<span id="cb109-5"><a href="#cb109-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">shave</span>() <span class="sc">|&gt;</span></span>
+<span id="cb109-6"><a href="#cb109-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fashion</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Correlation computed with
+• Method: 'pearson'
+• Missing treated using: 'pairwise.complete.obs'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 term total_points_earned proportion_earned time_spent_hours
+1 total_points_earned                                                       
+2   proportion_earned                 .79                                   
+3    time_spent_hours                 .38               .44                 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="model" class="level2">
+<h2 class="anchored" data-anchor-id="model">4. MODEL</h2>
+<p>As highlighted in&nbsp;<a href="https://datascienceineducation.com/c03.html">Chapter 3 of Data Science in Education Using R</a>, the&nbsp;<strong>Model</strong>&nbsp;step of the data science process entails “using statistical models, from simple to complex, to understand trends and patterns in the data.” The authors note that while descriptive statistics and data visualization during the&nbsp;<strong>Explore</strong>&nbsp;step can help us to identify patterns and relationships in our data, statistical models can be used to help us determine if relationships, patterns and trends are actually meaningful. In part Part 4 we will learn how to:</p>
+<section id="a.-predict-academic-achievement" class="level3">
+<h3 class="anchored" data-anchor-id="a.-predict-academic-achievement">4a. Predict Academic Achievement</h3>
+<p>For the purpose of this case study, let’s consider the <code>proportion_earned</code> variable to be our dependent, or the outcome, variable. You may be new to linear regression models, or you may have a lot of experience. In brief, a linear regression model involves estimating the relationships between one or more <em>independent variables</em> with one dependent variable. Mathematically, it can be written like the following.</p>
+<p><span class="math display">\[
+\operatorname{dependentvar} = \beta_{0} + \beta_{1}(\operatorname{independentvar}) + \epsilon
+\]</span></p>
+<p>Here, the <code>dependentvar</code> is predicted by two <em>coefficients</em>, or things that help to explain the dependent variable. The first coefficient, <span class="math inline">\(\beta_0\)</span>, is the intercept. This coefficient tells us what the estimated value of the dependent variable is when the independent variable (<code>independentvar</code>) is equal to 0. The other coefficient, <span class="math inline">\(\beta_1\)</span>, or the slope, represents the association of a one-unit change in the independent variable in the value of the dependent variable.</p>
+<section id="does-time-spent-predict-grade-earned" class="level4">
+<h4 class="anchored" data-anchor-id="does-time-spent-predict-grade-earned">Does Time Spent Predict Grade Earned?</h4>
+<p>Let’s consider a simple concrete example. We’ll use the <code>lm()</code> function in R to estimate a linear regression model.</p>
+<p>The following code estimates a model in which <code>proportion_earned</code>, the proportion of points students earned, is the dependent variable. It is predicted by one independent variable, <code>int</code>, students’ self-reported interest in science.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(proportion_earned <span class="sc">~</span> time_spent_hours, </span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> data_to_explore)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = proportion_earned ~ time_spent_hours, data = data_to_explore)
+
+Coefficients:
+     (Intercept)  time_spent_hours  
+        0.624306          0.004792  </code></pre>
+</div>
+</div>
+<p>Let’s take a look at the output.</p>
+<p>We can see that the intercept is estimated at 0.62. This tells us that when students’ time spent in the online course is equal to zero, their predicted proportion of points earned is 0.62—not such a great grade, but also not surprising! But, for every one-unit, or hour, increase in time spent in science, their estimate proportion of points earned was 0.0048. So if a student spent, for instance, 40 hours on the course, their estimated final grade would be .62 + (.0048 * 40), or around .82, or 82%. A pretty solid B-!</p>
+</section>
+<section id="how-about-interest-in-science" class="level4">
+<h4 class="anchored" data-anchor-id="how-about-interest-in-science">How about interest in science?</h4>
+<p>We can add additional predictor variables by separating variables with a plus symbol. Run the following code to add <code>int</code>, students’ self-reported interest in science, to our linear model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(proportion_earned <span class="sc">~</span> time_spent_hours <span class="sc">+</span> int, </span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>   <span class="at">data =</span> data_to_explore)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = proportion_earned ~ time_spent_hours + int, data = data_to_explore)
+
+Coefficients:
+     (Intercept)  time_spent_hours               int  
+        0.449657          0.004255          0.046283  </code></pre>
+</div>
+</div>
+<p>We can see that the intercept is now estimated at 0.449, which tells us that when students’ time spent and interest are equal to zero, they are likely fail the course unsurprisingly. Note that that estimate for interest in science is .046, so for every one-unit increase in <code>int</code>, we should expect an 5 percentage point increase in their grade.</p>
+<p>We can save the output of the function to an object—let’s say <code>m1</code>, standing for model 1. We can then use the <code>summary()</code> function built into R to view a much more feature-rich summary of the estimated model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(proportion_earned <span class="sc">~</span> time_spent_hours <span class="sc">+</span> int, <span class="at">data =</span> data_to_explore)</span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = proportion_earned ~ time_spent_hours + int, data = data_to_explore)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.66705 -0.07836  0.05049  0.14695  0.35766 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      0.449657   0.066488   6.763 3.54e-11 ***
+time_spent_hours 0.004255   0.000410  10.378  &lt; 2e-16 ***
+int              0.046282   0.015364   3.012  0.00271 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2142 on 536 degrees of freedom
+  (404 observations deleted due to missingness)
+Multiple R-squared:  0.1859,    Adjusted R-squared:  0.1828 
+F-statistic: 61.18 on 2 and 536 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>There is a lot to unpack in this output, but for now the most important values to look at are those in the Estimate column, which represent the intercept and slopes for your linear regression model.</p>
+<p>Note that the estimate for <code>time_spent_hours</code> is now 0.0042 and statistically significant. We see that <code>int</code>, interest in science, is also statistically significant.</p>
+</section>
+<section id="do-average-students-earn-an-average-grade" class="level4">
+<h4 class="anchored" data-anchor-id="do-average-students-earn-an-average-grade">Do average students earn an average grade?</h4>
+<p>Now let’s consider the mean values for each of these predictors. Recall from our tutorials last week the <code>summarize()</code> function from the {dplyr} package used to create summary statistics such as the mean, standard deviation, or the minimum or maximum of a value. At its core, think of <code>summarize()</code> as a function that returns a single value (whether it’s a mean, median, standard deviation—whichever!) that summarizes a single column.</p>
+<p>Let’s use the summarize function to calculate the means for time spent and interest in science and add the argument <code>na.rm = TRUE</code> to tell R that it can ignore missing, or <code>NA</code> values, and to calculate the summary statistic using the non-missing values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>data_to_explore <span class="sc">|&gt;</span> </span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_interest =</span> <span class="fu">mean</span>(int, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">mean_time =</span> <span class="fu">mean</span>(time_spent_hours, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  mean_interest mean_time
+          &lt;dbl&gt;     &lt;dbl&gt;
+1          4.30      30.5</code></pre>
+</div>
+</div>
+<p>The mean value for interest is quite high. If we multiply the estimate relationship between interest and proportion of points earned—0.046—by this, the mean interest across all of the students—we can determine that students’ estimate final grade was 0.046 X 4.3, or <strong>0.197</strong>. For hours spent spent, the average students’ estimate final grade was 0.0042 X 30.48, or <strong>0.128</strong>.</p>
+<p>If we add both 0.197 and 0.128 to the intercept, 0.449, that equals 0.774, or about 77%. In other words, a student with average interest in science who spent an average amount of time in the course earned a pretty average grade.</p>
+</section>
+</section>
+<section id="your-turn-16" class="level3">
+<h3 class="anchored" data-anchor-id="your-turn-16"><strong>Your Turn</strong></h3>
+<p>Repurpose the code from above to estimate a different regression models with at least 2 variables, save as <code>m2</code>, and view a <code>summary()</code> of the results:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(proportion_earned <span class="sc">~</span> time_spent_hours <span class="sc">+</span> val, <span class="at">data =</span> data_to_explore)</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = proportion_earned ~ time_spent_hours + val, data = data_to_explore)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.64777 -0.07731  0.04952  0.14859  0.32115 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)       0.6631756  0.0485516  13.659   &lt;2e-16 ***
+time_spent_hours  0.0043790  0.0004122  10.623   &lt;2e-16 ***
+val              -0.0051610  0.0125663  -0.411    0.681    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2166 on 542 degrees of freedom
+  (398 observations deleted due to missingness)
+Multiple R-squared:  0.1729,    Adjusted R-squared:  0.1698 
+F-statistic: 56.64 on 2 and 542 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Add a brief note or two interpreting the above model (<code>m2</code>):</p>
+<ul>
+<li>The additional variable “val” does not seem to be positively correlated. I struggle a bit with being able to interpret the summary with my limited statistics knowledge, but I suspect another variable might be better to compare (or perhaps interest in science is the only significant variable in this data set?).</li>
+</ul>
+</section>
+</section>
+<section id="communicate" class="level2">
+<h2 class="anchored" data-anchor-id="communicate">5. COMMUNICATE</h2>
+<p>Render and publish your work in either Quarto Pubs or R Pubs.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
